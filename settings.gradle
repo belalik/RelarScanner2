@@ -1,0 +1,2 @@
+rootProject.name = "RelarScanner2"
+include ':app'

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">RelarScanner2</string>
+    <string name="initial_message_no_saved_list">No saved list found.\nInitiate SCAN when ready</string>
+    <string name="initial_message_saved_list_found">Saved list found.\nChoose LOAD or SCAN for new list.</string>
+</resources>
