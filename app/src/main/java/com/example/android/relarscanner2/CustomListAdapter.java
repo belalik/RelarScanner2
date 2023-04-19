@@ -324,11 +324,13 @@ public class CustomListAdapter extends ArrayAdapter {
 
         String meetingID = findMeetingID(selectedStep.getURL());
 
+        // todo from "https://us04web.zoom.us/j/77108513466?pwd=8v37uLBuX9TrnayAw13D4bIbHXKF6Z.1" keep only meeting number
+
         correctLinkToGiveToZoom += meetingID;
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(correctLinkToGiveToZoom));
         if (intent.resolveActivity(context.getPackageManager()) != null) {
-            //Log.i(TAG, "openZoom: resolveActivity result: "+intent.resolveActivity(getPackageManager()).getPackageName());
+            Log.i(TAG, "openZoom: resolveActivity result: "+intent.resolveActivity(context.getPackageManager()).getPackageName());
             context.startActivity(intent);
         }
         else {
@@ -346,8 +348,41 @@ public class CustomListAdapter extends ArrayAdapter {
     }
 
 
-
+    /**
+     * The meeting ID can be a 10 or 11-digit number. The 11-digit number is used for instant,
+     * scheduled or recurring meetings. The 10-digit number is used for Personal Meeting IDs.
+     * from here: https://support.zoom.us/hc/en-us/articles/201362373-Meeting-and-Webinar-IDs
+     *
+     * So we keep first 10 or 11 digit numbers after '/j/' substring.
+     *
+     * Tested both with free and licensed zoom meetings...
+     *
+     * todo should probably include the possibility of /s/ instead of /j/ in meeting URL.
+     * @param url
+     * @return
+     */
     private String findMeetingID(String url) {
+        // // yourString.substring(yourString.indexOf("no") + 3 , yourString.length());
+        int startIndex = url.indexOf("/j/");
+        if (startIndex == -1) {
+            startIndex = url.indexOf("/s/");
+        }
+        String meetingID = "";
+
+        Log.i(TAG, "findMeetingID: startIndex = "+startIndex+", startIndex+1 char is: "+url.charAt(startIndex+1));
+        if (Character.isDigit(url.charAt(startIndex+13))) {
+            meetingID = url.substring(startIndex+3, startIndex+14);
+        }
+        else {
+            meetingID = url.substring(startIndex+3, startIndex+13);
+        }
+
+
+        Log.i(TAG, "findMeetingID: startIndex="+startIndex+", meetingID="+meetingID);
+
+        return meetingID;
+        // old code, worked but only for licensed links (only digits were meeting IDs)
+        /*
         Matcher m = Pattern.compile("[^0-9]*([0-9]+).*").matcher(url);
         if (m.matches()) {
             Log.i(TAG, "findMeetingId: "+m.group(1));
@@ -357,6 +392,8 @@ public class CustomListAdapter extends ArrayAdapter {
             //Log.i(TAG, "findMeetingId: no meeting id found");
             return "";
         }
+        */
+
     }
 
     private String getMimeFromFileURL(String url) {
